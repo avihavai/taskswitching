@@ -1,0 +1,45 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/security
+                           http://www.springframework.org/schema/security/spring-security.xsd">
+    
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetClass">
+            <value>org.springframework.security.core.context.SecurityContextHolder</value>
+        </property>
+        <property name="targetMethod">
+            <value>setStrategyName</value>
+        </property>
+        <property name="arguments">
+            <list>
+                <value>MODE_INHERITABLETHREADLOCAL</value>
+            </list>
+        </property>
+    </bean>        
+    
+    <bean id="authenticationEntryPoint" 
+          class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint" />
+
+    <security:http pattern="/static/**" security="none" />
+    
+    <security:http use-expressions="true" entry-point-ref="authenticationEntryPoint">
+        <security:intercept-url pattern="/index.html" access="permitAll" />
+        <security:intercept-url pattern="/app/login" access="permitAll" />
+        <security:intercept-url pattern="/app/auth*" access="permitAll" />
+        <security:intercept-url pattern="/app/form*" access="permitAll" />
+        <security:intercept-url pattern="/app/test" access="permitAll"/>
+        
+        <security:intercept-url pattern="/game.html" access="hasRole('ROLE_USER')" />
+        <security:intercept-url pattern="/app/result" access="hasRole('ROLE_USER')"/>
+        <security:intercept-url pattern="/app/listcount" access="hasRole('ROLE_USER')"/>
+        <security:intercept-url pattern="/results.html" access="hasRole('ROLE_USER')"/>        
+        <security:remember-me token-validity-seconds="43200"/>
+    </security:http>
+
+    <security:authentication-manager alias="authenticationManager">
+        <security:authentication-provider user-service-ref="userDetailsServiceImpl"/>
+    </security:authentication-manager>
+</beans>

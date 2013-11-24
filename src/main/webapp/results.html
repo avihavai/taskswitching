@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="static/css/jquery.dataTables.css" />
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+
+        <table id="results">
+            <thead>
+                <tr>
+                    <th>Participant Id</th>
+                    <th>Test</th>
+                    <th>Type</th>
+                    <th>Hits %</th>
+                    <th>RT AVG (ms)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Row 1 Data 1</td>
+                    <td>Row 1 Data 2</td>
+                    <td>etc</td>
+                    <td>etc</td>
+                    <td>etc</td>
+                </tr>
+                <tr>
+                    <td>Row 2 Data 1</td>
+                    <td>Row 2 Data 2</td>
+                    <td>etc</td>
+                    <td>etc</td>
+                    <td>etc</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <script src="static/lib/jquery-1.9.1.min.js"></script>
+        <script src="static/lib/jquery.dataTables.min.js"></script>
+        <script src="static/scripts/taskswitching-core.js"></script>
+        <script src="static/conf/taskswitching-config.js"></script>
+
+        <script>
+            $(document).ready(function() {
+                $("#results").dataTable({
+                    "bProcessing": true,
+                    "sAjaxSource": ts.config.backendResultAddress,
+                    "aoColumns": [
+                        {"mData": "participantId"},
+                        {"mData": "testType"},
+                        {"mData": "info"},
+                        {"mData": "hitsPercentage"},
+                        {"mData": "reactionTime"}
+                    ]
+                });
+            });
+        </script>
+    </body>
+</html>

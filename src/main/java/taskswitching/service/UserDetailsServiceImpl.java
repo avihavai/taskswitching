@@ -1,0 +1,60 @@
+package taskswitching.service;
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.ServletContext;
+import taskswitching.dto.Participant;
+import taskswitching.repository.ParticipantRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class UserDetailsServiceImpl implements UserDetailsService {
+
+    @Autowired
+    private ServletContext servletContext;
+    @Autowired
+    private ParticipantRepository participantRepository;
+
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+//        if (username.equals("test")) {
+//            throw new UsernameNotFoundException("No such username: " + username);
+//        }
+
+        String contextPath = servletContext.getContextPath();
+
+        Participant participant = participantRepository.findByUsernameAndContextPath(username, contextPath);
+        if (participant == null) {
+            participant = new Participant();
+            participant.setUsername(username);
+            participant.setContextPath(contextPath);
+            participant.setPassword("");
+            participant = participantRepository.save(participant);
+            participantRepository.flush();
+        }
+
+        return new org.springframework.security.core.userdetails.User(
+                participant.getUsername(),
+                participant.getPassword(),
+                true,
+                true,
+                true,
+                true,
+                getRolesAsGrantedAuthorities());
+    }
+
+    private List<GrantedAuthority> getRolesAsGrantedAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        return authorities;
+    }
+}
