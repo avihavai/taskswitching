@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.ServletContext;
 import taskswitching.dto.AdditionalKeyPress;
 import taskswitching.dto.Participant;
 import taskswitching.dto.Reaction;
@@ -21,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class ResultService {
 
     @Autowired
+    private ServletContext servletContext;
+
+    @Autowired
     private ParticipantRepository participantRepository;
     @Autowired
     private ResultRepository resultRepository;
@@ -32,26 +36,25 @@ public class ResultService {
     @Async
     @Transactional(readOnly = false)
     public void save(TestResult result) {
-        if(result.getParticipant() == null || result.getParticipant().getUsername() == null) {
+        if (result.getParticipant() == null || result.getParticipant().getUsername() == null) {
             return;
         }
-        
-        Participant p = participantRepository.findByUsername(result.getParticipant().getUsername());
+
+        Participant p = participantRepository.findByUsernameAndContextPath(result.getParticipant().getUsername(), servletContext.getContextPath());
         result.setParticipant(p);
-        
+
         List<AdditionalKeyPress> presses = new ArrayList<AdditionalKeyPress>();
         for (AdditionalKeyPress additionalKeyPress : result.getAdditionalKeyPresses()) {
             presses.add(additionalKeyPressRepository.save(additionalKeyPress));
         }
         result.setAdditionalKeyPresses(presses);
-        
-        
+
         List<Reaction> reactions = new ArrayList<Reaction>();
         for (Reaction reaction : result.getReactions()) {
             reactions.add(reactionRepository.save(reaction));
         }
         result.setReactions(reactions);
-        
+
         resultRepository.save(result);
     }
 

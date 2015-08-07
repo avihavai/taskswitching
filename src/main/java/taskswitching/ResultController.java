@@ -5,6 +5,7 @@ import taskswitching.view.DataTablesOutputVO;
 import taskswitching.dto.TestResult;
 import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.ServletContext;
 import taskswitching.repository.ParticipantRepository;
 import taskswitching.service.AggregateResultService;
 import taskswitching.view.AggregateResultVO;
@@ -25,6 +26,9 @@ public class ResultController {
     private ResultService resultService;
     @Autowired
     private AggregateResultService aggregateResultService;
+    
+    @Autowired
+    private ServletContext servletContext;
 
     @RequestMapping(method = RequestMethod.POST, value = "result", consumes = "application/json")
     @ResponseBody
@@ -37,7 +41,7 @@ public class ResultController {
             }
         }
 
-        result.setParticipant(participantRepository.findByUsername(result.getParticipant().getUsername()));
+        result.setParticipant(participantRepository.findByUsernameAndContextPath(result.getParticipant().getUsername(), servletContext.getContextPath()));
 
         resultService.save(result);
 
